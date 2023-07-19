@@ -1,5 +1,3 @@
-#! /usr/bin/python3
-
 from twilio.rest import Client
 from dotenv import load_dotenv
 import os
@@ -16,11 +14,9 @@ PERSONAL_NUMBER = os.getenv("PERSONAL_NUMBER")
 TWILIO_NUMBER = os.getenv("TWILIO_NUMBER")
 
 class News():
-    def __init__(self, top_5, text):
+    def __init__(self):
         self.top_5 = []
         self.text = ""
-
-news = News([], "")
 
 def fetch_news(api_key, country='us', category=None):
     main_url = "https://newsapi.org/v2/top-headlines"
@@ -58,12 +54,12 @@ def prettify(news_list:list):
     print(news.text)
     '''
 
-def send(SID:str, auth:str):
+def send(SID:str, auth:str, formatted_news:str):
     client = Client(SID, auth)
     client.messages.create(
         to = PERSONAL_NUMBER,
         from_ = TWILIO_NUMBER,
-        body = news.text
+        body = formatted_news
     )
 
 def log(content):
@@ -73,7 +69,7 @@ def log(content):
 
 if __name__ == '__main__':
     os.system('cls' if os.name == 'nt' else 'clear')
-    
+    news = News()
     try: 
         fetch_news(API_KEY)
 
@@ -82,10 +78,23 @@ if __name__ == '__main__':
         print(formatted_news)  
         
         # Send the text
-        send(TWILIO_SID, TWILIO_AUTH_TOKEN)
+        # send(TWILIO_SID, TWILIO_AUTH_TOKEN, formatted_news)
+
+        # Make log of news sent
         log("NEW LOG---------------" + str(datetime.now())[:19] + "\n" +
             "\n".join(news.top_5) + "\n")
     
     # Catch if there are any exceptions
     except Exception as e:
         print(f"Error: {e}")
+
+'''
+### IDEAS ###
+--for daily run
+# use azure functions instead of cronjob
+--for signups
+# make webapp where people can enter phone number to sign up
+# allow people to text a number to sign up
+--for news selection
+# allow people to choose a country and news genre
+'''
