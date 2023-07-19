@@ -1,8 +1,11 @@
+#! /usr/bin/python3
+
 from twilio.rest import Client
 from dotenv import load_dotenv
 import os
 import requests
 import random
+from datetime import datetime
 
 load_dotenv()
 
@@ -12,13 +15,12 @@ TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 PERSONAL_NUMBER = os.getenv("PERSONAL_NUMBER")
 TWILIO_NUMBER = os.getenv("TWILIO_NUMBER")
 
-
 class News():
-    def __init__(self, top_5):
+    def __init__(self, top_5, text):
         self.top_5 = []
         self.text = ""
 
-news = News(None)
+news = News([], "")
 
 def fetch_news(api_key, country='us', category=None):
     main_url = "https://newsapi.org/v2/top-headlines"
@@ -46,23 +48,44 @@ def fetch_news(api_key, country='us', category=None):
     news.top_5 = [f"{dirty_out.index(x) + 1}. {x}" for x in dirty_out]
 
 def prettify(news_list:list):
+    formatted_text = ""
+    for item in news_list:
+        formatted_text += item + "\n"
+    return formatted_text
+    '''
     for item in news_list:
         news.text += item + "\n"
     print(news.text)
-    
+    '''
 
 def send(SID:str, auth:str):
     client = Client(SID, auth)
-    # message = 
     client.messages.create(
         to = PERSONAL_NUMBER,
         from_ = TWILIO_NUMBER,
         body = news.text
     )
 
+def log(content):
+    with open('log.txt', 'a') as file:
+        # Write the content to the file.
+        file.write(content)
+
 if __name__ == '__main__':
-    # print(PERSONAL_NUMBER)
     os.system('cls' if os.name == 'nt' else 'clear')
-    fetch_news(API_KEY)
-    prettify(news.top_5)
-    send(TWILIO_SID, TWILIO_AUTH_TOKEN)
+    
+    try: 
+        fetch_news(API_KEY)
+
+        # Print news output in console
+        formatted_news = prettify(news.top_5)
+        print(formatted_news)  
+        
+        # Send the text
+        send(TWILIO_SID, TWILIO_AUTH_TOKEN)
+        log("NEW LOG---------------" + str(datetime.now())[:19] + "\n" +
+            "\n".join(news.top_5) + "\n")
+    
+    # Catch if there are any exceptions
+    except Exception as e:
+        print(f"Error: {e}")
