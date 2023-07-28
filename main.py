@@ -60,11 +60,11 @@ def send(SID:str, auth:str, formatted_news:str):
         to = PERSONAL_NUMBER,
         from_ = TWILIO_NUMBER,
         body = formatted_news
+        #body = 'hello this is rishabh'
     )
 
 def log(content):
     with open('log.txt', 'a') as file:
-        # Write the content to the file.
         file.write(content)
 
 if __name__ == '__main__':
@@ -78,7 +78,7 @@ if __name__ == '__main__':
         print(formatted_news)  
         
         # Send the text
-        # send(TWILIO_SID, TWILIO_AUTH_TOKEN, formatted_news)
+        send(TWILIO_SID, TWILIO_AUTH_TOKEN, formatted_news)
 
         # Make log of news sent
         log("NEW LOG---------------" + str(datetime.now())[:19] + "\n" +
